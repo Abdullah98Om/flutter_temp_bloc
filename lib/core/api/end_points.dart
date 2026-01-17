@@ -1,6 +1,5 @@
 class EndPoints {
-  static const String baseUrl =
-      "https://693d11fdf55f1be79301d4c8.mockapi.io/quote";
+  static const String baseUrl = "https://693d11fdf58.mockapi.io/quote";
 
   ///////////////////////  Auth ///////////////////////////////////////////
   static const String refreshToken = "$baseUrl/api/auth/refresh";
