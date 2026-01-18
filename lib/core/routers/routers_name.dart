@@ -5,5 +5,5 @@ class RoutesName {
   static const String index = '/index';
   static const String storyView = '/storyView';
   static const String article = '/article';
-  static const String profile = '/profile';
+  static const String home = '/home';
 }

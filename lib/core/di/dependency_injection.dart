@@ -20,6 +20,7 @@ class DependencyInjection {
     final secureStorage = SecureStorageServices();
     getIt.registerLazySingleton<SecureStorageServices>(() => secureStorage);
 
+    //////////////////////////////////////////////////////////
     ///////////////// Cubits //////////////////////////////////////
   }
 }

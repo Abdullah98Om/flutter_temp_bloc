@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_temp_bloc/views/home_page.dart';
+
+import 'routers_name.dart';
 
 // import 'routers_name.dart';
 
@@ -11,7 +14,7 @@ class Routes {
       // RoutesName.index: (_) => const Index(),
       // RoutesName.storyView: (_) => const StoryViewScreen(),
       // RoutesName.article: (_) => const ArticleScreen(),
-      // RoutesName.profile: (_) => const ProfileScreen(),
+      RoutesName.home: (_) => const HomePage(),
     };
 
     final pageBuilder = routes[settings.name];
