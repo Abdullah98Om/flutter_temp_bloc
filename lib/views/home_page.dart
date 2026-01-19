@@ -25,25 +25,48 @@ class HomePage extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             SizedBox(height: 32),
-            ElevatedButton(
-              onPressed: () {
-                // لتغيير اللغة إلى العربية
-                context.setLocale(Locale(LanguageKeys.arabic));
-              },
-              child: Text(
-                'اللغة العربية',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // لتغيير اللغة إلى العربية
+                    context.setLocale(Locale(LanguageKeys.arabic));
+                  },
+                  child: Text(
+                    'اللغة العربية',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // لتغيير اللغة إلى العربية
+                    context.setLocale(Locale(LanguageKeys.english));
+                  },
+                  child: Text(
+                    'English',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+              ],
             ),
+
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 final themeCubit = context.read<ThemeCubit>();
                 themeCubit.toggleTheme();
               },
-              child: Text(
-                'Theme',
-                style: Theme.of(context).textTheme.headlineMedium,
+              child: BlocBuilder<ThemeCubit, ThemeState>(
+                builder: (context, state) {
+                  return Icon(
+                    state.themeMode == ThemeMode.light
+                        ? Icons.dark_mode
+                        : Icons.light_mode,
+                    size: 40,
+                  );
+                },
               ),
             ),
           ],

@@ -23,7 +23,10 @@ void main() async {
       saveLocale: true, // هذا يحفظ اللغة تلقائيًا
       path: 'assets/langs',
       fallbackLocale: const Locale(LanguageKeys.english),
-      child: BlocProvider(create: (_) => ThemeCubit(), child: const MyApp()),
+      child: BlocProvider(
+        create: (_) => getIt<ThemeCubit>(),
+        child: const MyApp(),
+      ),
     ),
   );
 }
