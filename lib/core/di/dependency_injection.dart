@@ -2,6 +2,7 @@ import 'package:flutter_temp_bloc/core/storage/secure_storage_services.dart';
 import 'package:flutter_temp_bloc/core/storage/shared_service.dart';
 import 'package:flutter_temp_bloc/core/theme/cubit/theme_cubit.dart';
 import 'package:flutter_temp_bloc/core/theme/theme_service.dart';
+import 'package:flutter_temp_bloc/viewmodels/auth_cubit/auth_cubit.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -49,5 +50,7 @@ class DependencyInjection {
   ///////////////// Cubits //////////////////////////////////////
   static void _registerCubits() {
     // Register other cubits here
+
+    getIt.registerLazySingleton<AuthCubit>(() => AuthCubit());
   }
 }

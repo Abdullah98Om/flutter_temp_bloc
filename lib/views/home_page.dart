@@ -1,6 +1,8 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_temp_bloc/core/routers/routers_name.dart';
+import 'package:go_router/go_router.dart';
 
 import '../core/localization/language_keys.dart' show LanguageKeys;
 import '../core/theme/app_text_style.dart';
@@ -70,6 +72,18 @@ class HomePage extends StatelessWidget {
                           : Icons.light_mode,
                       size: 40,
                     );
+                  },
+                ),
+              ),
+
+              SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  context.pushNamed(RoutesName.products);
+                },
+                child: BlocBuilder<ThemeCubit, ThemeState>(
+                  builder: (context, state) {
+                    return Icon(Icons.arrow_back, size: 40);
                   },
                 ),
               ),

@@ -5,7 +5,8 @@ import 'core/routers/routers.dart';
 import 'core/routers/routers_name.dart';
 import 'core/theme/cubit/theme_cubit.dart';
 import 'core/theme/cubit/theme_state.dart';
-import 'views/error_page/error_page.dart' show ErrorPage;
+import 'viewmodels/auth_cubit/auth_cubit.dart';
+import 'views/error_page.dart' show ErrorPage;
 import 'core/di/dependency_injection.dart';
 import 'core/localization/language_keys.dart';
 
@@ -23,8 +24,12 @@ void main() async {
       saveLocale: true, // هذا يحفظ اللغة تلقائيًا
       path: 'assets/langs',
       fallbackLocale: const Locale(LanguageKeys.english),
-      child: BlocProvider(
-        create: (_) => getIt<ThemeCubit>(),
+      child: MultiBlocProvider(
+        providers: [
+          BlocProvider<ThemeCubit>.value(value: getIt<ThemeCubit>()),
+          BlocProvider<AuthCubit>.value(value: getIt<AuthCubit>()..getUser()),
+        ],
+
         child: const MyApp(),
       ),
     ),
@@ -38,7 +43,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, state) {
-        return MaterialApp(
+        return MaterialApp.router(
           locale: context.locale,
           debugShowCheckedModeBanner: false,
           supportedLocales: context.supportedLocales,
@@ -46,8 +51,8 @@ class MyApp extends StatelessWidget {
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
           themeMode: state.mode, // هنا يتم اختيار الثيم
-          initialRoute: RoutesName.home,
-          onGenerateRoute: Routes.generateRoute,
+
+          routerConfig: myRouter,
           builder: (context, widget) {
             // Handle UI errors
             ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
