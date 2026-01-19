@@ -1,5 +1,6 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_temp_bloc/core/routers/routers_name.dart';
 import 'package:go_router/go_router.dart';
@@ -26,9 +27,12 @@ class HomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: .center,
             children: [
-              Text(
-                "appTitle".tr(),
-                style: Theme.of(context).textTheme.headlineMedium,
+              Animate(
+                effects: [FadeEffect(), ScaleEffect()],
+                child: Text(
+                  "appTitle".tr(),
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
               ),
               SizedBox(height: 32),
               Row(
@@ -74,7 +78,7 @@ class HomePage extends StatelessWidget {
                     );
                   },
                 ),
-              ),
+              ).animate().fade(duration: 500.ms).scale(duration: 500.ms),
 
               SizedBox(height: 16),
               ElevatedButton(

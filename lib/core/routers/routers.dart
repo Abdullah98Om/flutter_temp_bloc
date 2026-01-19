@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_temp_bloc/core/di/dependency_injection.dart';
 import 'package:flutter_temp_bloc/viewmodels/auth_cubit/auth_cubit.dart';
 import 'package:flutter_temp_bloc/views/error_page.dart';
@@ -9,69 +8,6 @@ import 'package:go_router/go_router.dart';
 
 import 'page_transitions.dart';
 import 'routers_name.dart';
-
-// import 'routers_name.dart';
-
-// class Routes {
-//   static Route<dynamic> generateRoute(RouteSettings settings) {
-//     final routes = <String, WidgetBuilder>{
-//       // RoutesName.splash: (_) => const SplashScreen(),
-//       // RoutesName.onboarding: (_) => const OnboardingScreen(),
-//       // RoutesName.login: (_) => const LoginScreen(),
-//       // RoutesName.index: (_) => const Index(),
-//       // RoutesName.storyView: (_) => const StoryViewScreen(),
-//       // RoutesName.article: (_) => const AuthGate(child: ArticleScreen()), // محمية ب AuthGate ==> (لابد ان يكون مسجل دخول)
-//       RoutesName.home: (_) => const HomePage(),
-//     };
-
-//     final pageBuilder = routes[settings.name];
-//     if (pageBuilder == null) {
-//       return _errorRoute();
-//     }
-
-//     // return MaterialPageRoute(builder: pageBuilder, settings: settings);
-//     switch (settings.name) {
-//       case RoutesName.home:
-//         return PageRouteBuilder(
-//           pageBuilder: (context, animation, secondaryAnimation) =>
-//               pageBuilder(context),
-//           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-//             return FadeTransition(opacity: animation, child: child);
-//           },
-//         );
-//       default:
-//         return PageRouteBuilder(
-//           pageBuilder: (context, animation, secondaryAnimation) =>
-//               pageBuilder(context),
-//           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-//             final offsetAnimation = Tween<Offset>(
-//               begin: const Offset(1.0, 0.0),
-//               end: Offset.zero,
-//             ).animate(animation);
-//             return SlideTransition(position: offsetAnimation, child: child);
-//           },
-//         );
-//     }
-//   }
-
-//   static Route<dynamic> _errorRoute() {
-//     return MaterialPageRoute(
-//       builder: (_) => const Scaffold(
-//         backgroundColor: Colors.white,
-//         body: Center(
-//           child: Text(
-//             'Not Found Screen ..',
-//             style: TextStyle(
-//               color: Colors.black,
-//               fontSize: 24,
-//               fontWeight: FontWeight.w700,
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 final _protectedRoutes = <String>{
   RoutesName.products,
@@ -117,7 +53,6 @@ final myRouter = GoRouter(
       name: RoutesName.products,
       path: RoutesName.products,
       pageBuilder: (context, state) => PageTransitions.fade(ProductsPage()),
-      redirect: (context, state) {},
     ),
   ],
 );
