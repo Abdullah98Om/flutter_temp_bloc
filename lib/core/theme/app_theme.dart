@@ -1,38 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_temp_bloc/core/theme/app_color.dart';
+import 'app_color.dart';
+import 'app_text_style.dart';
 
 class AppTheme {
   static ThemeData light = ThemeData(
     brightness: Brightness.light,
+    scaffoldBackgroundColor: AppColor.backgroundColor,
+    primaryColor: AppColor.primaryColor,
     colorScheme: const ColorScheme.light(
-      surface: AppColor.darkGrayColor,
       primary: AppColor.primaryColor,
       secondary: AppColor.secondaryColor,
     ),
-    scaffoldBackgroundColor: AppColor.backgroundColor,
-
+    textTheme: const TextTheme(
+      displayLarge: AppTextStyles.headline1,
+      displayMedium: AppTextStyles.headline2,
+      bodyLarge: AppTextStyles.bodyText,
+      labelLarge: AppTextStyles.buttonText,
+      bodySmall: AppTextStyles.caption,
+    ),
     appBarTheme: const AppBarTheme(
       backgroundColor: AppColor.backgroundColor,
+      foregroundColor: AppColor.darkTextColor,
       elevation: 0,
-      foregroundColor: AppColor.darkBlueTextColor,
-      centerTitle: true,
     ),
   );
 
   static ThemeData dark = ThemeData(
     brightness: Brightness.dark,
-    colorScheme: const ColorScheme.light(
-      surface: Color.fromARGB(255, 158, 172, 208),
+    scaffoldBackgroundColor: AppColor.darkBackground,
+    primaryColor: AppColor.primaryColor,
+    colorScheme: const ColorScheme.dark(
       primary: AppColor.primaryColor,
       secondary: AppColor.secondaryColor,
     ),
-    scaffoldBackgroundColor: AppColor.backgroundColor,
-
+    textTheme: const TextTheme(
+      displayLarge: AppTextStyles.headline1,
+      displayMedium: AppTextStyles.headline2,
+      bodyLarge: AppTextStyles.bodyText,
+      labelLarge: AppTextStyles.buttonText,
+      bodySmall: AppTextStyles.caption,
+    ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColor.backgroundColor,
+      backgroundColor: AppColor.darkBackground,
+      foregroundColor: AppColor.lightTextColor,
       elevation: 0,
-      foregroundColor: AppColor.darkBlueTextColor,
-      centerTitle: true,
     ),
   );
 }

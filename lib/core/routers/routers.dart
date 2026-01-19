@@ -13,7 +13,7 @@ class Routes {
       // RoutesName.login: (_) => const LoginScreen(),
       // RoutesName.index: (_) => const Index(),
       // RoutesName.storyView: (_) => const StoryViewScreen(),
-      // RoutesName.article: (_) => const ArticleScreen(),
+      // RoutesName.article: (_) => const AuthGate(child: ArticleScreen()), // محمية ب AuthGate ==> (لابد ان يكون مسجل دخول)
       RoutesName.home: (_) => const HomePage(),
     };
 

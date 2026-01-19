@@ -1,17 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_temp_bloc/core/theme/app_color.dart';
+import 'app_color.dart';
 
-class AppTextStyle {
-  static TextStyle h1 = TextStyle(
-    fontSize: 24,
-    fontWeight: FontWeight.w800,
-    height: 32 / 24,
-    color: AppColor.secondaryColor,
+class AppTextStyles {
+  // العناوين الكبيرة
+  static const TextStyle headline1 = TextStyle(
+    fontSize: 32,
+    fontWeight: FontWeight.bold,
+    color: AppColor.darkTextColor,
   );
-  static TextStyle h3 = TextStyle(
-    fontSize: 14,
+
+  static const TextStyle headline2 = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w600,
+    color: AppColor.darkTextColor,
+  );
+
+  // نصوص عادية
+  static const TextStyle bodyText = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.normal,
+    color: AppColor.darkTextColor,
+  );
+
+  static const TextStyle buttonText = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w500,
+    color: AppColor.lightTextColor,
+  );
+
+  static const TextStyle caption = TextStyle(
+    fontSize: 12,
     fontWeight: FontWeight.w400,
-    height: 22 / 14,
-    color: AppColor.darkBlueTextColor,
+    color: AppColor.darkTextColor,
   );
 }

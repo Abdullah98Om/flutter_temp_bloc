@@ -1,10 +1,10 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_temp_bloc/core/theme/app_theme.dart';
 import 'core/routers/routers.dart';
 import 'core/routers/routers_name.dart';
-import 'core/theme/theme_cubit.dart';
+import 'core/theme/cubit/theme_cubit.dart';
+import 'core/theme/cubit/theme_state.dart';
 import 'views/error_page/error_page.dart' show ErrorPage;
 import 'core/di/dependency_injection.dart';
 import 'core/localization/language_keys.dart';
@@ -40,11 +40,12 @@ class MyApp extends StatelessWidget {
       builder: (context, state) {
         return MaterialApp(
           locale: context.locale,
+          debugShowCheckedModeBanner: false,
           supportedLocales: context.supportedLocales,
           localizationsDelegates: context.localizationDelegates,
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
-          themeMode: state.themeMode, // هنا يتم اختيار الثيم
+          themeMode: state.mode, // هنا يتم اختيار الثيم
           initialRoute: RoutesName.home,
           onGenerateRoute: Routes.generateRoute,
           builder: (context, widget) {

@@ -7,6 +7,8 @@ import '../storage/storage_keys.dart';
 import 'end_points.dart';
 import 'status_code.dart';
 
+typedef ProgressCallback = void Function(int sent, int total);
+
 class ApiClient {
   static const int _timeout = 60000; // 60 seconds
 
@@ -16,6 +18,10 @@ class ApiClient {
 
   bool _isRefreshing = false;
   final Queue<RequestOptions> _retryQueue = Queue<RequestOptions>();
+  final Map<String, String> baseHeaders = {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  };
 
   ApiClient(this._secureStorage) {
     _dio = Dio(
@@ -24,10 +30,7 @@ class ApiClient {
         connectTimeout: const Duration(milliseconds: _timeout),
         receiveTimeout: const Duration(milliseconds: _timeout),
         sendTimeout: const Duration(milliseconds: _timeout),
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
+        headers: Map.from(baseHeaders),
       ),
     );
 
@@ -38,7 +41,6 @@ class ApiClient {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          // إضافة Access Token فقط إذا requiresAuth != false
           final requiresAuth = options.extra['requiresAuth'] ?? true;
 
           if (requiresAuth) {
@@ -68,143 +70,115 @@ class ApiClient {
           handler.next(response);
         },
         onError: (err, handler) async {
-          if (err.response?.statusCode == 401) {
-            final refreshToken = await _secureStorage.getValue(
-              AppStorageKey.refreshToken,
-            );
-
-            if (refreshToken != null) {
-              _retryQueue.add(err.requestOptions);
-
-              if (!_isRefreshing) {
-                _isRefreshing = true;
-                try {
-                  final refreshResponse = await _dio.post(
-                    refreshTokenUrl,
-                    data: {AppStorageKey.refreshToken: refreshToken},
-                    options: Options(
-                      extra: {'requiresAuth': false},
-                    ), // لا حاجة لتوكن هنا
-                  );
-
-                  final newAccess =
-                      refreshResponse.data[AppStorageKey.accessToken];
-                  final newRefresh =
-                      refreshResponse.data[AppStorageKey.refreshToken];
-
-                  await _secureStorage.setValue(
-                    AppStorageKey.accessToken,
-                    newAccess,
-                  );
-                  await _secureStorage.setValue(
-                    AppStorageKey.refreshToken,
-                    newRefresh,
-                  );
-
-                  while (_retryQueue.isNotEmpty) {
-                    final options = _retryQueue.removeFirst();
-                    options.headers['Authorization'] = 'Bearer $newAccess';
-                    await _dio.request(
-                      options.path,
-                      data: options.data,
-                      queryParameters: options.queryParameters,
-                      options: Options(
-                        method: options.method,
-                        headers: options.headers,
-                        extra: options.extra,
-                      ),
-                    );
-                  }
-                  _isRefreshing = false;
-                  return handler.resolve(
-                    await _dio.request(
-                      err.requestOptions.path,
-                      data: err.requestOptions.data,
-                      queryParameters: err.requestOptions.queryParameters,
-                      options: Options(
-                        method: err.requestOptions.method,
-                        headers: err.requestOptions.headers,
-                        extra: err.requestOptions.extra,
-                      ),
-                    ),
-                  );
-                } catch (e) {
-                  _isRefreshing = false;
-                  await _secureStorage.clearAll();
-                  return handler.reject(err);
-                }
-              } else {
-                return;
-              }
-            }
+          if (err.response?.statusCode == StatusCode.unauthorized) {
+            await _handle401(err, handler);
+            return;
           }
-
           handler.next(err);
         },
       ),
     );
   }
 
-  // GET request
-  Future<Map<String, dynamic>> get(
+  // ------------------ Generic Requests ------------------
+  Future<T> get<T>(
     String path, {
     Map<String, dynamic>? queryParameters,
     bool requiresAuth = true,
-  }) async {
-    try {
-      final response = await _dio.get(
-        path,
-        queryParameters: queryParameters,
-        options: Options(extra: {'requiresAuth': requiresAuth}),
-      );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
+  }) async => _request<T>(
+    () => _dio.get(
+      path,
+      queryParameters: queryParameters,
+      options: Options(extra: {'requiresAuth': requiresAuth}),
+    ),
+  );
 
-  // POST request
-  Future<Map<String, dynamic>> post(
+  Future<T> post<T>(
     String path, {
     dynamic data,
     Map<String, dynamic>? queryParameters,
     bool requiresAuth = true,
-  }) async {
-    try {
-      final response = await _dio.post(
-        path,
-        data: data,
-        queryParameters: queryParameters,
-        options: Options(extra: {'requiresAuth': requiresAuth}),
-      );
-      return response.data as Map<String, dynamic>;
-    } on DioException catch (e) {
-      throw _handleError(e);
-    }
-  }
+  }) async => _request<T>(
+    () => _dio.post(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: Options(extra: {'requiresAuth': requiresAuth}),
+    ),
+  );
 
-  //  POST request (has)
-  Future<Map<String, dynamic>> postFile(
+  Future<T> put<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = true,
+  }) async => _request<T>(
+    () => _dio.put(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: Options(extra: {'requiresAuth': requiresAuth}),
+    ),
+  );
+
+  Future<T> patch<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = true,
+  }) async => _request<T>(
+    () => _dio.patch(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: Options(extra: {'requiresAuth': requiresAuth}),
+    ),
+  );
+
+  Future<T> delete<T>(
+    String path, {
+    dynamic data,
+    Map<String, dynamic>? queryParameters,
+    bool requiresAuth = true,
+  }) async => _request<T>(
+    () => _dio.delete(
+      path,
+      data: data,
+      queryParameters: queryParameters,
+      options: Options(extra: {'requiresAuth': requiresAuth}),
+    ),
+  );
+
+  Future<T> postFile<T>(
     String path,
     FormData formData, {
-    bool requiresAuth = true, // Auth مطلوب عادة
-  }) async {
+    bool requiresAuth = true,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async => _request<T>(
+    () => _dio.post(
+      path,
+      data: formData,
+      onSendProgress: onSendProgress,
+      onReceiveProgress: onReceiveProgress,
+      options: Options(
+        contentType: 'multipart/form-data',
+        extra: {'requiresAuth': requiresAuth},
+      ),
+    ),
+  );
+
+  // ------------------ Private Generic Handler ------------------
+  Future<T> _request<T>(Future<Response> Function() requestFn) async {
     try {
-      final response = await _dio.post(
-        path,
-        data: formData,
-        options: Options(
-          contentType: 'multipart/form-data',
-          extra: {'requiresAuth': requiresAuth},
-        ),
-      );
-      return response.data as Map<String, dynamic>;
+      final response = await requestFn();
+      return response.data as T;
     } on DioException catch (e) {
       throw _handleError(e);
     }
   }
 
-  // تحويل أخطاء Dio إلى Exceptions
+  // ------------------ Error Handling ------------------
   Exception _handleError(DioException error) {
     switch (error.type) {
       case DioExceptionType.connectionTimeout:
@@ -239,12 +213,89 @@ class ApiClient {
       case StatusCode.serverError:
         return ServerException();
       case StatusCode.validationError:
-        return ValidationException(
-          response.data['errors'],
-        ); // إذا كانت errors Map
-
+        return ValidationException(response.data['errors']);
       default:
         return UnknownException();
     }
+  }
+
+  // ------------------ 401 Handler ------------------
+  Future<void> _handle401(
+    DioException err,
+    ErrorInterceptorHandler handler,
+  ) async {
+    final refreshToken = await _secureStorage.getValue(
+      AppStorageKey.refreshToken,
+    );
+    if (refreshToken == null) return handler.reject(err);
+
+    if (!_retryQueue.any((req) => req.path == err.requestOptions.path)) {
+      _retryQueue.add(err.requestOptions);
+    }
+
+    if (_isRefreshing) return;
+
+    _isRefreshing = true;
+
+    try {
+      final refreshResponse = await _dio.post(
+        refreshTokenUrl,
+        data: {AppStorageKey.refreshToken: refreshToken},
+        options: Options(extra: {'requiresAuth': false}),
+      );
+
+      final newAccess = refreshResponse.data?[AppStorageKey.accessToken];
+      final newRefresh = refreshResponse.data?[AppStorageKey.refreshToken];
+
+      if (newAccess == null || newRefresh == null) {
+        _isRefreshing = false;
+        await _secureStorage.clearAll();
+        return handler.reject(err);
+      }
+
+      await _secureStorage.setValue(AppStorageKey.accessToken, newAccess);
+      await _secureStorage.setValue(AppStorageKey.refreshToken, newRefresh);
+
+      // إعادة إرسال كل الطلبات المؤجلة
+      while (_retryQueue.isNotEmpty) {
+        final options = _retryQueue.removeFirst();
+        options.headers['Authorization'] = 'Bearer $newAccess';
+        await _dio.request(
+          options.path,
+          data: options.data,
+          queryParameters: options.queryParameters,
+          options: Options(
+            method: options.method,
+            headers: options.headers,
+            extra: options.extra,
+          ),
+        );
+      }
+
+      _isRefreshing = false;
+
+      // إعادة إرسال الطلب الأصلي
+      return handler.resolve(
+        await _dio.request(
+          err.requestOptions.path,
+          data: err.requestOptions.data,
+          queryParameters: err.requestOptions.queryParameters,
+          options: Options(
+            method: err.requestOptions.method,
+            headers: err.requestOptions.headers,
+            extra: err.requestOptions.extra,
+          ),
+        ),
+      );
+    } catch (e) {
+      _isRefreshing = false;
+      await _secureStorage.clearAll();
+      return handler.reject(err);
+    }
+  }
+
+  // ------------------ Header Dynamic ------------------
+  Future<void> setHeader(String key, String value) async {
+    _dio.options.headers[key] = value;
   }
 }
