@@ -83,11 +83,11 @@ class HomePage extends StatelessWidget {
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  context.pushNamed(RoutesName.products);
+                  context.pushNamed(RoutesName.faceDetection);
                 },
                 child: BlocBuilder<ThemeCubit, ThemeState>(
                   builder: (context, state) {
-                    return Icon(Icons.arrow_back, size: 40);
+                    return Text("Face Detecation");
                   },
                 ),
               ),

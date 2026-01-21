@@ -3,14 +3,14 @@ import 'package:flutter_temp_bloc/viewmodels/auth_cubit/auth_cubit.dart';
 import 'package:flutter_temp_bloc/views/error_page.dart';
 import 'package:flutter_temp_bloc/views/home_page.dart';
 import 'package:flutter_temp_bloc/views/login/login_page.dart';
-import 'package:flutter_temp_bloc/views/products/products_page.dart';
+import 'package:flutter_temp_bloc/views/face_detecation/face_detection_page.dart';
 import 'package:go_router/go_router.dart';
 
 import 'page_transitions.dart';
 import 'routers_name.dart';
 
 final _protectedRoutes = <String>{
-  RoutesName.products,
+  RoutesName.faceDetection,
   //  RoutesName.products,
   //  RoutesName.products,
   //   RoutesName.products
@@ -50,9 +50,10 @@ final myRouter = GoRouter(
           PageTransitions.slideFromRight(LoginPage()),
     ),
     GoRoute(
-      name: RoutesName.products,
-      path: RoutesName.products,
-      pageBuilder: (context, state) => PageTransitions.fade(ProductsPage()),
+      name: RoutesName.faceDetection,
+      path: RoutesName.faceDetection,
+      pageBuilder: (context, state) =>
+          PageTransitions.fade(FaceDetectionPage()),
     ),
   ],
 );
