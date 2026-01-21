@@ -1,45 +1,60 @@
-import 'dart:io';
-
-import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_temp_bloc/viewmodels/face_detection_cubit/face_detection_state.dart';
+import 'package:camera/camera.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
-import 'package:path_provider/path_provider.dart';
+import 'dart:io';
 import 'package:permission_handler/permission_handler.dart';
 
+import 'face_detection_state.dart';
+
 class FaceDetectionCubit extends Cubit<FaceDetectionState> {
-  FaceDetectionCubit() : super(FaceDetectionState());
+  FaceDetectionCubit() : super(const FaceDetectionState());
 
   final FaceDetector _faceDetector = FaceDetector(
     options: FaceDetectorOptions(
       enableClassification: true,
       enableLandmarks: true,
-      enableContours: true,
       enableTracking: true,
+      enableContours: true,
+      performanceMode: FaceDetectorMode.fast,
     ),
   );
 
   List<CameraDescription> cameras = [];
-  int selectedCameraIndex = 0;
-  bool _saving = false;
+  int _selectedCameraIndex = 0;
 
   Future<void> initialize() async {
+    await _requestPermission();
+    await _initializeCameras();
+  }
+
+  Future<void> _requestPermission() async {
     final status = await Permission.camera.request();
-    if (!status.isGranted) {
-      emit(state.copyWith(error: 'تم رفض صلاحية الكاميرا'));
-      return;
+    if (status != PermissionStatus.granted) {
+      debugPrint("Camera permission denied");
     }
+  }
 
-    cameras = await availableCameras();
-    selectedCameraIndex = cameras.indexWhere(
-      (c) => c.lensDirection == CameraLensDirection.front,
-    );
-    if (selectedCameraIndex == -1) selectedCameraIndex = 0;
+  Future<void> _initializeCameras() async {
+    try {
+      cameras = await availableCameras();
+      if (cameras.isEmpty) return;
 
+      _selectedCameraIndex = cameras.indexWhere(
+        (c) => c.lensDirection == CameraLensDirection.front,
+      );
+      if (_selectedCameraIndex == -1) _selectedCameraIndex = 0;
+
+      await _initializeCamera(cameras[_selectedCameraIndex]);
+    } catch (e) {
+      debugPrint(e.toString());
+    }
+  }
+
+  Future<void> _initializeCamera(CameraDescription camera) async {
     final controller = CameraController(
-      cameras[selectedCameraIndex],
+      camera,
       ResolutionPreset.high,
       enableAudio: false,
       imageFormatGroup: Platform.isIOS
@@ -49,98 +64,119 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
 
     await controller.initialize();
     emit(state.copyWith(controller: controller));
-
-    controller.startImageStream(processImage);
+    _startFaceDetection();
   }
 
-  Future<void> processImage(CameraImage image) async {
-    if (state.isDetecting || state.controller == null) return;
-
-    emit(state.copyWith(isDetecting: true));
-
-    final inputImage = _convert(image);
-    if (inputImage == null) {
-      emit(state.copyWith(isDetecting: false));
-      return;
-    }
-
-    final faces = await _faceDetector.processImage(inputImage);
-    final isValid = _validateFace(faces);
-
-    emit(state.copyWith(faces: faces, faceValid: isValid, isDetecting: false));
-
-    if (isValid) {
-      await _autoSave();
-    }
-  }
-
-  InputImage? _convert(CameraImage image) {
+  void _startFaceDetection() {
     final controller = state.controller;
-    if (controller == null) return null;
+    if (controller == null || !controller.value.isInitialized) return;
 
+    controller.startImageStream((image) async {
+      if (state.isDetecting) return;
+
+      emit(state.copyWith(isDetecting: true));
+
+      final inputImage = _convertCameraImageToInputImage(image, controller);
+      if (inputImage == null) {
+        emit(state.copyWith(isDetecting: false));
+        return;
+      }
+
+      try {
+        final faces = await _faceDetector.processImage(inputImage);
+        final isValid = _validateFace(faces, controller);
+
+        emit(state.copyWith(faces: faces));
+
+        if (isValid) {
+          if (controller.value.isStreamingImages) {
+            await controller.stopImageStream();
+          }
+
+          final file = await controller.takePicture();
+          final bytes = await file.readAsBytes();
+          emit(state.copyWith(capturedImageBytes: bytes));
+        }
+      } catch (e) {
+        debugPrint(e.toString());
+      } finally {
+        emit(state.copyWith(isDetecting: false));
+      }
+    });
+  }
+
+  InputImage? _convertCameraImageToInputImage(
+    CameraImage image,
+    CameraController controller,
+  ) {
     try {
-      final InputImageFormat format = Platform.isIOS
+      final format = Platform.isIOS
           ? InputImageFormat.bgra8888
           : InputImageFormat.nv21;
 
-      final rotation = InputImageRotation.values.firstWhere(
-        (e) => e.rawValue == controller.description.sensorOrientation,
-        orElse: () => InputImageRotation.rotation0deg,
-      );
-
-      final metadata = InputImageMetadata(
+      final inputImageMetadata = InputImageMetadata(
         size: Size(image.width.toDouble(), image.height.toDouble()),
-        rotation: rotation,
+        rotation: InputImageRotation.values.firstWhere(
+          (e) => e.rawValue == controller.description.sensorOrientation,
+          orElse: () => InputImageRotation.rotation0deg,
+        ),
         format: format,
-        bytesPerRow: image.planes.first.bytesPerRow,
+        bytesPerRow: image.planes[0].bytesPerRow,
       );
 
-      final bytes = _concatenatePlanes(image.planes);
+      final allBytes = WriteBuffer();
+      for (var plane in image.planes) {
+        allBytes.putUint8List(plane.bytes);
+      }
+      final bytes = allBytes.done().buffer.asUint8List();
 
-      return InputImage.fromBytes(bytes: bytes, metadata: metadata);
+      return InputImage.fromBytes(bytes: bytes, metadata: inputImageMetadata);
     } catch (e) {
-      debugPrint('❌ Convert error: $e');
+      debugPrint(e.toString());
       return null;
     }
   }
 
-  Uint8List _concatenatePlanes(List<Plane> planes) {
-    final WriteBuffer allBytes = WriteBuffer();
-
-    for (final Plane plane in planes) {
-      allBytes.putUint8List(plane.bytes);
-    }
-
-    return allBytes.done().buffer.asUint8List();
-  }
-
-  bool _validateFace(List<Face> faces) {
-    if (faces.length != 1) return false;
+  bool _validateFace(List<Face> faces, CameraController controller) {
+    if (faces.isEmpty) return false;
+    if (faces.length > 1) return false;
 
     final face = faces.first;
+    final box = face.boundingBox;
+    final previewSize = controller.value.previewSize!;
+    final isFront =
+        controller.description.lensDirection == CameraLensDirection.front;
 
-    if ((face.leftEyeOpenProbability ?? 0) < 0.5) return false;
-    if ((face.rightEyeOpenProbability ?? 0) < 0.5) return false;
+    double left = box.left;
+    double right = box.right;
+    double top = box.top;
+    double bottom = box.bottom;
 
-    if ((face.headEulerAngleY ?? 0).abs() > 15) return false;
+    if (isFront) {
+      left = previewSize.width - box.right;
+      right = previewSize.width - box.left;
+    }
 
-    return true;
+    final faceArea = box.width * box.height;
+    final imageArea = previewSize.width * previewSize.height;
+
+    return faceArea >= imageArea * 0.05; // مثال: تحقق فقط من الحجم
   }
 
-  Future<void> _autoSave() async {
-    if (_saving || state.controller == null) return;
-    _saving = true;
+  Future<void> toggleCamera() async {
+    final controller = state.controller;
+    if (controller != null && controller.value.isStreamingImages) {
+      await controller.stopImageStream();
+    }
 
-    await state.controller!.stopImageStream();
+    _selectedCameraIndex = (_selectedCameraIndex + 1) % cameras.length;
+    await _initializeCamera(cameras[_selectedCameraIndex]);
+  }
 
-    final file = await state.controller!.takePicture();
-    final dir = await getApplicationDocumentsDirectory();
-
-    final savedPath =
-        '${dir.path}/face_${DateTime.now().millisecondsSinceEpoch}.jpg';
-
-    final savedFile = await File(file.path).copy(savedPath);
-
-    emit(state.copyWith(capturedImage: XFile(savedFile.path)));
+  @override
+  Future<void> close() {
+    _faceDetector.close();
+    state.controller?.dispose();
+    return super.close();
   }
 }

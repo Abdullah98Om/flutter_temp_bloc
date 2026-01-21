@@ -1,38 +1,45 @@
+import 'dart:typed_data';
 import 'package:camera/camera.dart';
+import 'package:equatable/equatable.dart';
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 
-class FaceDetectionState {
+class FaceDetectionState extends Equatable {
   final CameraController? controller;
   final List<Face> faces;
+  final Uint8List? capturedImageBytes; // الصورة في الذاكرة
+  final String faceError;
   final bool isDetecting;
-  final bool faceValid;
-  final String error;
-  final XFile? capturedImage;
 
-  FaceDetectionState({
+  const FaceDetectionState({
     this.controller,
     this.faces = const [],
+    this.capturedImageBytes,
+    this.faceError = '',
     this.isDetecting = false,
-    this.faceValid = false,
-    this.error = '',
-    this.capturedImage,
   });
 
   FaceDetectionState copyWith({
     CameraController? controller,
     List<Face>? faces,
+    Uint8List? capturedImageBytes,
+    String? faceError,
     bool? isDetecting,
-    bool? faceValid,
-    String? error,
-    XFile? capturedImage,
   }) {
     return FaceDetectionState(
       controller: controller ?? this.controller,
       faces: faces ?? this.faces,
+      capturedImageBytes: capturedImageBytes ?? this.capturedImageBytes,
+      faceError: faceError ?? this.faceError,
       isDetecting: isDetecting ?? this.isDetecting,
-      faceValid: faceValid ?? this.faceValid,
-      error: error ?? this.error,
-      capturedImage: capturedImage ?? this.capturedImage,
     );
   }
+
+  @override
+  List<Object?> get props => [
+    controller,
+    faces,
+    capturedImageBytes,
+    faceError,
+    isDetecting,
+  ];
 }
