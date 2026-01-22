@@ -27,7 +27,7 @@ class MyTextFormField extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (title != null) Text(title!, style: AppTextStyles.headline2),
+        if (title != null) Text(title!, style: MyTextStyles.medium12),
         // if (title != null) SizedBox(height: 8),
         Container(
           alignment: Alignment.center,
@@ -49,7 +49,7 @@ class MyTextFormField extends StatelessWidget {
 
             style: TextStyle(
               decoration: TextDecoration.none,
-              color: AppColor.secondaryColor,
+              color: MyAppColor.secondaryColor,
               fontSize: 16,
               fontWeight: FontWeight.w600,
             ),
@@ -77,7 +77,7 @@ class MyTextFormField extends StatelessWidget {
                 letterSpacing: 1.75,
                 fontSize: 16,
                 fontWeight: FontWeight.w400,
-                color: AppColor.successColor,
+                color: MyAppColor.successColor,
               ),
             ),
           ),

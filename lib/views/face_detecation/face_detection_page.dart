@@ -1,3 +1,70 @@
+// import 'package:camera/camera.dart';
+// import 'package:flutter/material.dart';
+// import 'package:flutter_bloc/flutter_bloc.dart';
+// import 'package:flutter_temp_bloc/core/di/dependency_injection.dart';
+// import 'package:flutter_temp_bloc/viewmodels/face_detection_cubit/face_detection_cubit.dart';
+
+// import '../../core/theme/app_text_style.dart';
+// import '../../viewmodels/face_detection_cubit/face_detection_state.dart';
+// import 'widgets/draw_face_widget.dart';
+
+// class FaceDetectionPage extends StatelessWidget {
+//   const FaceDetectionPage({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Face Detection'),
+//         centerTitle: true,
+//         actions: [
+//           // if (cameras.length > 1)
+//           //   IconButton(
+//           //     onPressed: _toogleCamera,
+//           //     icon: Icon(Icons.switch_camera),
+//           //   ),
+//         ],
+//       ),
+//       body: BlocProvider(
+//         create: (_) => getIt<FaceDetectionCubit>()..initialize(),
+//         child: BlocBuilder<FaceDetectionCubit, FaceDetectionState>(
+//           builder: (context, state) {
+//             if (state.controller == null ||
+//                 !state.controller!.value.isInitialized) {
+//               return const Center(child: CircularProgressIndicator());
+//             }
+
+//             return Stack(
+//               fit: StackFit.expand,
+//               children: [
+//                 state.capturedImageBytes != null
+//                     ? Image.memory(state.capturedImageBytes!, fit: BoxFit.cover)
+//                     : CameraPreview(state.controller!),
+
+//                 if (state.capturedImageBytes == null)
+//                   DrawFaceWidget(
+//                     faces: state.faces,
+//                     controller: state.controller,
+//                   ),
+
+//                 if (state.faceError.isNotEmpty)
+//                   Positioned(
+//                     bottom: 30,
+//                     left: 0,
+//                     right: 0,
+//                     child: Text(
+//                       state.faceError,
+//                       style: MyTextStyles.bold24.copyWith(color: Colors.red),
+//                     ),
+//                   ),
+//               ],
+//             );
+//           },
+//         ),
+//       ),
+//     );
+//   }
+// }
 import 'dart:async';
 import 'dart:io';
 
@@ -7,7 +74,6 @@ import 'package:flutter/material.dart';
 
 import 'package:google_mlkit_face_detection/google_mlkit_face_detection.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path_provider/path_provider.dart';
 
 import 'widgets/draw_face_widget.dart';
 

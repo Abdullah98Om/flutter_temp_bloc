@@ -5,44 +5,48 @@ import 'app_text_style.dart';
 class AppTheme {
   static ThemeData light = ThemeData(
     brightness: Brightness.light,
-    scaffoldBackgroundColor: AppColor.backgroundColor,
-    primaryColor: AppColor.primaryColor,
+    scaffoldBackgroundColor: MyAppColor.backgroundColor,
+    primaryColor: MyAppColor.primaryColor,
     colorScheme: const ColorScheme.light(
-      primary: AppColor.primaryColor,
-      secondary: AppColor.secondaryColor,
+      primary: MyAppColor.primaryColor,
+      secondary: MyAppColor.secondaryColor,
     ),
-    textTheme: const TextTheme(
-      displayLarge: AppTextStyles.headline1,
-      displayMedium: AppTextStyles.headline2,
-      bodyLarge: AppTextStyles.bodyText,
-      labelLarge: AppTextStyles.buttonText,
-      bodySmall: AppTextStyles.caption,
+    textTheme: TextTheme(
+      displayLarge: MyTextStyles.bold24,
+      displayMedium: MyTextStyles.bold20,
+      titleMedium: MyTextStyles.medium16,
+      bodyLarge: MyTextStyles.regular15,
+      bodyMedium: MyTextStyles.regular14,
+      bodySmall: MyTextStyles.regular12,
+      labelSmall: MyTextStyles.regular10,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColor.backgroundColor,
-      foregroundColor: AppColor.darkTextColor,
+      backgroundColor: MyAppColor.backgroundColor,
+      foregroundColor: MyAppColor.darkTextColor,
       elevation: 0,
     ),
   );
 
   static ThemeData dark = ThemeData(
     brightness: Brightness.dark,
-    scaffoldBackgroundColor: AppColor.darkBackground,
-    primaryColor: AppColor.primaryColor,
+    scaffoldBackgroundColor: MyAppColor.darkBackground,
+    primaryColor: MyAppColor.primaryColor,
     colorScheme: const ColorScheme.dark(
-      primary: AppColor.primaryColor,
-      secondary: AppColor.secondaryColor,
+      primary: MyAppColor.primaryColor,
+      secondary: MyAppColor.secondaryColor,
     ),
     textTheme: const TextTheme(
-      displayLarge: AppTextStyles.headline1,
-      displayMedium: AppTextStyles.headline2,
-      bodyLarge: AppTextStyles.bodyText,
-      labelLarge: AppTextStyles.buttonText,
-      bodySmall: AppTextStyles.caption,
+      displayLarge: MyTextStyles.bold24,
+      displayMedium: MyTextStyles.bold20,
+      titleMedium: MyTextStyles.medium16,
+      bodyLarge: MyTextStyles.regular15,
+      bodyMedium: MyTextStyles.regular14,
+      bodySmall: MyTextStyles.regular12,
+      labelSmall: MyTextStyles.regular10,
     ),
     appBarTheme: const AppBarTheme(
-      backgroundColor: AppColor.darkBackground,
-      foregroundColor: AppColor.lightTextColor,
+      backgroundColor: MyAppColor.darkBackground,
+      foregroundColor: MyAppColor.lightTextColor,
       elevation: 0,
     ),
   );

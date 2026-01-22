@@ -6,10 +6,10 @@ class MyButtont extends StatelessWidget {
   const MyButtont({
     super.key,
     this.name,
-    this.color = AppColor.primaryColor,
+    this.color = MyAppColor.primaryColor,
     this.icon,
     this.onTap,
-    this.textColor = AppColor.backgroundColor,
+    this.textColor = MyAppColor.backgroundColor,
   });
   final String? name;
   final Color color, textColor;

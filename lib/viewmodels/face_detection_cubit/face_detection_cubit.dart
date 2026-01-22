@@ -75,6 +75,7 @@ class FaceDetectionCubit extends Cubit<FaceDetectionState> {
       if (state.isDetecting) return;
 
       emit(state.copyWith(isDetecting: true));
+      await Future.delayed(const Duration(milliseconds: 80));
 
       final inputImage = _convertCameraImageToInputImage(image, controller);
       if (inputImage == null) {

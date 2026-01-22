@@ -2,6 +2,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/routers/routers.dart';
+import 'core/theme/app_theme.dart';
 import 'core/theme/cubit/theme_cubit.dart';
 import 'core/theme/cubit/theme_state.dart';
 import 'viewmodels/auth_cubit/auth_cubit.dart';
@@ -13,6 +14,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await EasyLocalization.ensureInitialized();
   await DependencyInjection.init();
+
+  ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+    return ErrorPage();
+  };
   runApp(
     EasyLocalization(
       supportedLocales: const [
@@ -41,24 +46,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
+      buildWhen: (previous, current) =>
+          previous.mode != current.mode, // يحصل التحديث فقط عند تغير الثيم
       builder: (context, state) {
         return MaterialApp.router(
           locale: context.locale,
           debugShowCheckedModeBanner: false,
           supportedLocales: context.supportedLocales,
           localizationsDelegates: context.localizationDelegates,
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
+          theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
           themeMode: state.mode, // هنا يتم اختيار الثيم
-
           routerConfig: myRouter,
-          builder: (context, widget) {
-            // Handle UI errors
-            ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
-              return ErrorPage();
-            };
-            return widget!;
-          },
         );
       },
     );

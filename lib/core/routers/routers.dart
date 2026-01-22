@@ -1,7 +1,7 @@
 import 'package:flutter_temp_bloc/core/di/dependency_injection.dart';
 import 'package:flutter_temp_bloc/viewmodels/auth_cubit/auth_cubit.dart';
 import 'package:flutter_temp_bloc/views/error_page.dart';
-import 'package:flutter_temp_bloc/views/home_page.dart';
+import 'package:flutter_temp_bloc/views/index/index_page.dart';
 import 'package:flutter_temp_bloc/views/login/login_page.dart';
 import 'package:flutter_temp_bloc/views/face_detecation/face_detection_page.dart';
 import 'package:go_router/go_router.dart';
@@ -38,10 +38,10 @@ final myRouter = GoRouter(
   },
   routes: [
     GoRoute(
-      name: RoutesName.home,
+      name: RoutesName.index,
       path: '/',
       pageBuilder: (context, state) =>
-          PageTransitions.slideFromBottom(HomePage()),
+          PageTransitions.slideFromBottom(IndexPage()),
     ),
     GoRoute(
       name: RoutesName.login,

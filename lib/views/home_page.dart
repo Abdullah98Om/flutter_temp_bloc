@@ -17,82 +17,75 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false, // يمنع الرجوع
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          centerTitle: true,
-          title: Text('Flutter Template Bloc', style: AppTextStyles.headline1),
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: .center,
-            children: [
-              Animate(
-                effects: [FadeEffect(), ScaleEffect()],
-                child: Text(
-                  "appTitle".tr(),
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: .center,
+          children: [
+            Animate(
+              effects: [FadeEffect(), ScaleEffect()],
+              child: Text(
+                "appTitle".tr(),
+                style: Theme.of(context).textTheme.headlineMedium,
               ),
-              SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      // لتغيير اللغة إلى العربية
-                      context.setLocale(Locale(LanguageKeys.arabic));
-                    },
-                    child: Text(
-                      'اللغة العربية',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      // لتغيير اللغة إلى العربية
-                      context.setLocale(Locale(LanguageKeys.english));
-                    },
-                    child: Text(
-                      'English',
-                      style: Theme.of(context).textTheme.headlineMedium,
-                    ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  final themeCubit = context.read<ThemeCubit>();
-                  themeCubit.toggle();
-                },
-                child: BlocBuilder<ThemeCubit, ThemeState>(
-                  builder: (context, state) {
-                    return Icon(
-                      state.mode == ThemeMode.light
-                          ? Icons.dark_mode
-                          : Icons.light_mode,
-                      size: 40,
-                    );
+            ),
+            SizedBox(height: 32),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    // لتغيير اللغة إلى العربية
+                    context.setLocale(Locale(LanguageKeys.arabic));
                   },
+                  child: Text(
+                    'اللغة العربية',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
-              ).animate().fade(duration: 500.ms).scale(duration: 500.ms),
-
-              SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  context.pushNamed(RoutesName.faceDetection);
-                },
-                child: BlocBuilder<ThemeCubit, ThemeState>(
-                  builder: (context, state) {
-                    return Text("Face Detecation");
+                SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    // لتغيير اللغة إلى العربية
+                    context.setLocale(Locale(LanguageKeys.english));
                   },
+                  child: Text(
+                    'English',
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
+              ],
+            ),
+
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                final themeCubit = context.read<ThemeCubit>();
+                themeCubit.toggle();
+              },
+              child: BlocBuilder<ThemeCubit, ThemeState>(
+                builder: (context, state) {
+                  return Icon(
+                    state.mode == ThemeMode.light
+                        ? Icons.dark_mode
+                        : Icons.light_mode,
+                    size: 40,
+                  );
+                },
               ),
-            ],
-          ),
+            ).animate().fade(duration: 500.ms).scale(duration: 500.ms),
+
+            SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: () {
+                context.pushNamed(RoutesName.faceDetection);
+              },
+              child: BlocBuilder<ThemeCubit, ThemeState>(
+                builder: (context, state) {
+                  return Text("Face Detecation", style: MyTextStyles.bold24);
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
